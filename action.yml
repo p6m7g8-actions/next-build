@@ -1,6 +1,6 @@
-name: "P6 Actions: NextJS Build"
-description: "P6 Actions: NextJS Build"
-author: "p6m7g8"
+name: "P6 GHA: Builds a NextJS Static Site"
+description: "P6 GHA: Builds a NextJS Static Site"
+author: "Philip M. Gollucci"
 runs:
   using: "composite"
   steps:
