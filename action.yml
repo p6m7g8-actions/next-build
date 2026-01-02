@@ -5,7 +5,7 @@ runs:
   using: "composite"
   steps:
     - name: Checkout code
-      uses: actions/checkout@v5.0.0
+      uses: actions/checkout@v6.0.1
     - name: Node
       uses: p6m7g8-actions/node-setup@main
     - name: Disable Next.js Telemetry
