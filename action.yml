@@ -34,7 +34,10 @@ runs:
           exit 1
         fi
 
-        if [[ -z "$(find out -mindepth 1 -type f -print -quit)" ]]; then
+        # -L so a symlink to a real file counts as a file: next-deploy syncs
+        # with --follow-symlinks, so such an export publishes fine and must not
+        # be rejected as empty here.
+        if [[ -z "$(find -L out -mindepth 1 -type f -print -quit)" ]]; then
           echo "::error::Static export empty: 'out/' exists but contains no files."
           echo "next-deploy runs 'aws s3 sync out s3://<bucket> --delete', so syncing an"
           echo "empty 'out/' would delete every object in the live bucket."
@@ -43,4 +46,8 @@ runs:
           exit 1
         fi
 
-        echo "Static export present: $(find out -type f | wc -l | tr -d ' ') file(s) under out/."
+        # Diagnostic only. Kept off the failure path: under `set -o pipefail` a
+        # nonzero find (say an unreadable subdirectory) would otherwise abort
+        # the step after both assertions had already passed.
+        count="$(find -L out -mindepth 1 -type f -print 2>/dev/null | wc -l | tr -d ' ' || true)"
+        echo "Static export present: ${count:-unknown} file(s) under out/."
