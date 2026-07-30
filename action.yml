@@ -22,13 +22,20 @@ runs:
         # This action builds a *static* site. A plain `next build` succeeds
         # without emitting `out/` when `output: 'export'` is absent from
         # next.config, and the failure then surfaces downstream in
-        # p6m7g8-actions/next-deploy, which runs `aws s3 sync out --delete`
-        # and would empty the live bucket. Fail here instead.
+        # p6m7g8-actions/next-deploy, which runs `aws s3 sync out --delete`.
+        #
+        # The two cases differ, and the second is the dangerous one:
+        #   - out/ absent: the sync aborts with "The user-provided path out
+        #     does not exist." before touching the bucket. A hard failure, but
+        #     the live site survives.
+        #   - out/ present but empty: the sync succeeds against an empty
+        #     source and --delete removes every object in the bucket.
+        # Both are caught here, before any credentials are assumed.
         if [[ ! -d out ]]; then
           echo "::error::Static export missing: 'next build' succeeded but produced no 'out/' directory."
-          echo "This action builds a NextJS static site and next-deploy runs:"
+          echo "This action builds a NextJS static site, and next-deploy then runs:"
           echo "    aws s3 sync out s3://<bucket> --delete"
-          echo "so a missing 'out/' would delete every object in the live bucket."
+          echo "which cannot publish anything without 'out/'."
           echo "Fix: add \"output: 'export'\" to next.config.js / next.config.mjs / next.config.ts,"
           echo "then re-run. If this project is not a static export, use a different deploy action."
           exit 1
