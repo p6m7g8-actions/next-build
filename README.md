@@ -7,5 +7,5 @@
 
 ```yaml
       - name: NextJS Build
-        uses: p6m7g8-actions/next-build@main
+        uses: p6m7g8-actions/p6-next-build@main
 ```
